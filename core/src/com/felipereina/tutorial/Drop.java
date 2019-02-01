@@ -3,14 +3,20 @@ package com.felipereina.tutorial;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
+
+import java.util.Iterator;
 
 public class Drop extends ApplicationAdapter {
 
@@ -23,6 +29,8 @@ public class Drop extends ApplicationAdapter {
 	private SpriteBatch batch;
 
 	private Rectangle bucket;
+	private Array<Rectangle> rainDrops; // Array class is a libgdx class to be used instead of standard java collection
+	private long lastDropTime;
 
 	private Vector3 touchPosition;
 
@@ -56,6 +64,12 @@ public class Drop extends ApplicationAdapter {
 
 		//instantiate the Vector3
 		this.touchPosition = new Vector3();
+
+		//instantiate the array of drops
+		this.rainDrops = new Array<Rectangle>();
+		spawnRaindrop(); //spawn our first raindrop
+
+
 	}
 
 	@Override
@@ -71,13 +85,77 @@ public class Drop extends ApplicationAdapter {
 		batch.setProjectionMatrix(camera.combined); //tells the spritebatch to use the coordinate specified by the camera
 		batch.begin(); //OpenGL wants to be told about as many images to render as possible at once
 		batch.draw(bucketImage,bucket.x,bucket.y);
+		for(Rectangle rainDrop : rainDrops){ //render the raindrops
+			batch.draw(dropImage, rainDrop.x, rainDrop.y);
+		}
 		batch.end();
 
-		//moving the bucket
-		if(Gdx.input.isTouched()){ //first we verify if the screen is currently touched
-			touchPosition.set(Gdx.input.getX(), Gdx.input.getY(),0); // transform the mouse coordinate in coordinates from our game (Vector3)
+		//moving the bucket throught the mouse (or touch in the smartphone screen)
+		if(Gdx.input.isTouched()) { //first we verify if the screen is currently touched
+			touchPosition.set(Gdx.input.getX(), Gdx.input.getY(), 0); // transform the mouse coordinate in coordinates from our game (Vector3)
 			camera.unproject(touchPosition); // transform these coordinates to our camera coodinate system
-			bucket.x = touchPosition.x - 64/2;
+			bucket.x = touchPosition.x - 64 / 2;
 		}
+
+		//moving the bucket by keyboard - 200 pixels per second (without acceleration)
+		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+			bucket.x -= 200 * Gdx.graphics.getDeltaTime();
+		}
+		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+			bucket.x += 200 * Gdx.graphics.getDeltaTime(); // returns the time passed between the last and the actual frame
+		}
+
+		// stablishing limits right and left for the bucket
+		if(bucket.x < 0){
+			bucket.x = 0;
+		}
+		if(bucket.x > 800 - 64){
+			bucket.x = 800 - 64;
+		}
+
+		//check how much time has passed since we spawned a raindrop. if its greater than some time, spawn another drop
+		if(TimeUtils.nanoTime() - lastDropTime > 100000000) {
+			spawnRaindrop();
+		}
+
+		//Make the raindrop move at a constant speed of 200pixels per second.
+		// If the raindrop is beneath the botton of the screen, remove the raindrop from the Array
+		for(Iterator<Rectangle> iter = rainDrops.iterator(); iter.hasNext();) {
+			Rectangle rainDrop = iter.next();
+			rainDrop.y -= 200 * Gdx.graphics.getDeltaTime();
+			if(rainDrop.y + 64 < 0 ){
+				iter.remove();
+			}
+			//If raindrop hits the bucket plays the drop sound
+			if(rainDrop.overlaps(bucket)){
+				dropSound.play();
+				iter.remove();
+			}
+		}
+
+
+	}
+
+	@Override
+	public void dispose(){
+		dropImage.dispose();
+		bucketImage.dispose();
+		dropSound.dispose();
+		rainMusic.dispose();
+		batch.dispose();
+	}
+
+	//auxiliary method to instantiate raindrops(rectangles) position it in a random position in the top of the screen
+	//and add it to the raindrop array
+	public void spawnRaindrop(){
+		Rectangle rainDrop = new Rectangle();
+		rainDrop.x = MathUtils.random(0,800 - 64);
+		rainDrop.y = 480;
+		rainDrop.width = 64;
+		rainDrop.height = 64;
+		rainDrops.add(rainDrop);
+		lastDropTime = TimeUtils.nanoTime();
+
 	}
 }
+
