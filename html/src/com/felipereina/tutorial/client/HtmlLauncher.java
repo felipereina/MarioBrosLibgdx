@@ -3,7 +3,7 @@ package com.felipereina.tutorial.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import com.felipereina.tutorial.Drop;
+import com.felipereina.tutorial.MarioBros;
 
 public class HtmlLauncher extends GwtApplication {
 
@@ -46,6 +46,6 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener createApplicationListener () {
-                return new Drop();
+                return new MarioBros();
         }
 }
