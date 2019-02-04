@@ -11,6 +11,7 @@ public class MarioBros extends Game {
 	//defines virtual width and virtual height of our game
 	public static final int V_WIDTH = 400;
 	public static final int V_HEIGHT = 208;
+	public static final float PPM = 100; //pixels per meter
 
 
 	public SpriteBatch batch;
