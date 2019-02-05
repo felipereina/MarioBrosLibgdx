@@ -3,7 +3,6 @@ package com.felipereina.tutorial.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import com.felipereina.tutorial.Drop;
 
 public class HtmlLauncher extends GwtApplication {
 
