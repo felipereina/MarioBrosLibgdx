@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.felipereina.tutorial.MarioBros;
 import com.felipereina.tutorial.Scenes.Hud;
 import com.felipereina.tutorial.Sprites.Mario;
+import com.felipereina.tutorial.Tools.B2WorldCreator;
 
 public class PlayScreen implements Screen {
 
@@ -62,76 +63,12 @@ public class PlayScreen implements Screen {
         this.world = new World(new Vector2(0,-10), true); //1st parm to set gravity, 2nd to set sleep bodies
         this.b2dr = new Box2DDebugRenderer(); // allows debug lines in our box2d world
 
+        //Instantiate B2WorldCreator class
+        new B2WorldCreator(world, map);
+
         //Instantiate Mario
         this.player = new Mario(world);
 
-        //will create a body and fixture in every corresponding body in our tiledmap layers.
-
-        BodyDef bodyDef = new BodyDef(); //body definition
-        PolygonShape polygonShape = new PolygonShape();
-        FixtureDef fixtureDef = new FixtureDef(); //fixture definition
-        Body body; //the body itself
-
-        //---the Ground Body / fixtures: ---
-        //get(2) = counting layers in Tiledmap software from the bottom up(the first object before the images)
-        for(MapObject object : map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)){
-            //first get the rectangle object itself (type cast)
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-            //define our body as static
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set((rect.getX() + rect.getWidth() /2) / MarioBros.PPM, (rect.getY() + rect.getHeight() /2) / MarioBros.PPM);
-            body = world.createBody(bodyDef); //add the body to the world.
-
-            polygonShape.setAsBox((rect.getWidth() / 2) / MarioBros.PPM, (rect.getHeight() /2) / MarioBros.PPM);
-            fixtureDef.shape = polygonShape; //defining the shape of the fixture.
-            body.createFixture(fixtureDef); //add the fixture to the body.
-        }
-
-        //---the Pipe Body / fixtures: ---
-        for(MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)){
-            //first get the rectangle object itself (type cast)
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-            //define our body as static
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set((rect.getX() + rect.getWidth() /2) / MarioBros.PPM, (rect.getY() + rect.getHeight() /2) / MarioBros.PPM);
-            body = world.createBody(bodyDef); //add the body to the world.
-
-            polygonShape.setAsBox((rect.getWidth() / 2) / MarioBros.PPM, (rect.getHeight() /2) / MarioBros.PPM);
-            fixtureDef.shape = polygonShape; //defining the shape of the fixture.
-            body.createFixture(fixtureDef); //add the fixture to the body.
-        }
-
-        //---the Brick Body / fixtures: ---
-        for(MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)){
-            //first get the rectangle object itself (type cast)
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-            //define our body as static
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set((rect.getX() + rect.getWidth() /2) / MarioBros.PPM, (rect.getY() + rect.getHeight() /2) / MarioBros.PPM);
-            body = world.createBody(bodyDef); //add the body to the world.
-
-            polygonShape.setAsBox((rect.getWidth() / 2) / MarioBros.PPM, (rect.getHeight() /2) / MarioBros.PPM);
-            fixtureDef.shape = polygonShape; //defining the shape of the fixture.
-            body.createFixture(fixtureDef); //add the fixture to the body.
-        }
-
-        //---the Coin Body / fixtures: ---
-        for(MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)){
-            //first get the rectangle object itself (type cast)
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-            //define our body as static
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set((rect.getX() + rect.getWidth() /2) / MarioBros.PPM, (rect.getY() + rect.getHeight() /2) / MarioBros.PPM);
-            body = world.createBody(bodyDef); //add the body to the world.
-
-            polygonShape.setAsBox((rect.getWidth() / 2) / MarioBros.PPM, (rect.getHeight() /2)/MarioBros.PPM );
-            fixtureDef.shape = polygonShape; //defining the shape of the fixture.
-            body.createFixture(fixtureDef); //add the fixture to the body.
-        }
 
     }
 
@@ -224,6 +161,11 @@ public class PlayScreen implements Screen {
 
     @Override
     public void dispose() {
+        map.dispose();
+        renderer.dispose();
+        world.dispose();
+        b2dr.dispose();
+        hud.dispose();
 
     }
 }
