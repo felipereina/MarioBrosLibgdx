@@ -7,6 +7,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -26,13 +27,17 @@ import com.felipereina.tutorial.Tools.B2WorldCreator;
 
 public class PlayScreen implements Screen {
 
+    //Reference to our Game used to set Screens
     private MarioBros game;
+    private TextureAtlas atlas;
+
+    //Basic playscreen properties
     private OrthographicCamera gameCam;
     private Viewport gamePort; // defines how the game screen will adapt to different devices screen sizes
     //the hud class is where we have the stage and table with bitmap font for score, level and life information.
     private Hud hud;
 
-
+    //Tiled Map Properties
     private TmxMapLoader mapLoader; //responsible to load our map into the game
     private TiledMap map; // reference to the mao itself
     private OrthogonalTiledMapRenderer renderer; // what renders our map to the screen
@@ -45,6 +50,9 @@ public class PlayScreen implements Screen {
     private Mario player;
 
     public PlayScreen(MarioBros game){
+
+        this.atlas = new TextureAtlas("Mario_and_Enemies.pack");
+
         this.game = game;
         this.gameCam = new OrthographicCamera();
         //FitViewport maintains the aspect ratio of the game and adds a black bar to the corners;
@@ -67,12 +75,13 @@ public class PlayScreen implements Screen {
         new B2WorldCreator(world, map);
 
         //Instantiate Mario
-        this.player = new Mario(world);
-
-
+        this.player = new Mario(world, this);
     }
 
-
+    //Custom method to return Atlas
+    public TextureAtlas getAtlas(){
+        return this.atlas;
+    }
 
     //new method to do all the updating of our game world
     public void update(float deltaTime){
@@ -81,6 +90,9 @@ public class PlayScreen implements Screen {
         handleInput(deltaTime);
 
         world.step(1/60f, 6, 2);
+
+        //update Mario sprite Position according to the body
+        player.update(deltaTime);
 
         //Always center the Camera in Mario position on the screen
         gameCam.position.x = player.b2body.getPosition().x;
@@ -121,12 +133,17 @@ public class PlayScreen implements Screen {
         Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        //Render our game Map
         renderer.render();
+
+        //Render Mario
+        game.batch.setProjectionMatrix(gameCam.combined);
+        game.batch.begin();
+        player.draw(game.batch);
+        game.batch.end();
 
         //renderer out Box2dDebugLines (green box2d lines)
         b2dr.render(world,gameCam.combined);
-
-
 
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
