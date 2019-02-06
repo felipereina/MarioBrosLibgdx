@@ -24,6 +24,7 @@ import com.felipereina.tutorial.MarioBros;
 import com.felipereina.tutorial.Scenes.Hud;
 import com.felipereina.tutorial.Sprites.Mario;
 import com.felipereina.tutorial.Tools.B2WorldCreator;
+import com.felipereina.tutorial.Tools.WorldContactListener;
 
 public class PlayScreen implements Screen {
 
@@ -76,6 +77,9 @@ public class PlayScreen implements Screen {
 
         //Instantiate Mario
         this.player = new Mario(world, this);
+
+        //contact listener is what get called when 2 fixtures in Box2d colide with each other
+        world.setContactListener(new WorldContactListener());
     }
 
     //Custom method to return Atlas

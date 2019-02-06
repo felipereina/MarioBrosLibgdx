@@ -80,6 +80,14 @@ public class Mario extends Sprite {
         fixtureDef2.shape = feet;
         b2body.createFixture(fixtureDef2);
 
+        //-- Fixture for Mario head --
+        FixtureDef fixtureDef3 = new FixtureDef();
+        EdgeShape head = new EdgeShape(); //Edge Shape is a line between 2 diferents points.
+        head.set(new Vector2(-2 / MarioBros.PPM, 6 / MarioBros.PPM), new Vector2(2 / MarioBros.PPM, 6 / MarioBros.PPM));
+        fixtureDef3.shape = head;
+        fixtureDef3.isSensor = true; //when its a sensor, it does not collide with anything, it just capture information.
+
+        b2body.createFixture(fixtureDef3).setUserData("head");
     }
 
     //update Mario sprite Position according to the body
