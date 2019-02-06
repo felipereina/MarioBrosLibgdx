@@ -69,25 +69,28 @@ public class Mario extends Sprite {
         //--Mario Fixture --
         FixtureDef fixtureDef = new FixtureDef();
         CircleShape shape = new CircleShape();
-        shape.setRadius(5 / MarioBros.PPM);
+        shape.setRadius(6 / MarioBros.PPM);
         fixtureDef.shape = shape;
+
+        //give a identity BIT to the fixture and define with wich fitures it can collide with
+        fixtureDef.filter.categoryBits = MarioBros.MARIO_BIT;
+        fixtureDef.filter.maskBits = MarioBros.DEFAULT_BIT | MarioBros.COIN_BIT | MarioBros.BRICK_BIT;
+
         b2body.createFixture(fixtureDef);
 
         //--Fixture to the feet of Mario (to walk smoothly through the boxes) --
-        FixtureDef fixtureDef2 = new FixtureDef();
         EdgeShape feet = new EdgeShape();
         feet.set(new Vector2(-2 / MarioBros.PPM, -6/MarioBros.PPM), new Vector2(2/MarioBros.PPM, -6/MarioBros.PPM));
-        fixtureDef2.shape = feet;
-        b2body.createFixture(fixtureDef2);
+        fixtureDef.shape = feet;
+        b2body.createFixture(fixtureDef);
 
         //-- Fixture for Mario head --
-        FixtureDef fixtureDef3 = new FixtureDef();
         EdgeShape head = new EdgeShape(); //Edge Shape is a line between 2 diferents points.
         head.set(new Vector2(-2 / MarioBros.PPM, 6 / MarioBros.PPM), new Vector2(2 / MarioBros.PPM, 6 / MarioBros.PPM));
-        fixtureDef3.shape = head;
-        fixtureDef3.isSensor = true; //when its a sensor, it does not collide with anything, it just capture information.
+        fixtureDef.shape = head;
+        fixtureDef.isSensor = true; //when its a sensor, it does not collide with anything, it just capture information.
 
-        b2body.createFixture(fixtureDef3).setUserData("head");
+        b2body.createFixture(fixtureDef).setUserData("head");
     }
 
     //update Mario sprite Position according to the body
