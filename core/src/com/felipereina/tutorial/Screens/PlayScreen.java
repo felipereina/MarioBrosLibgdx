@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -50,6 +51,9 @@ public class PlayScreen implements Screen {
     //Mario Sprite property
     private Mario player;
 
+    //Game Music
+    private Music music;
+
     public PlayScreen(MarioBros game){
 
         this.atlas = new TextureAtlas("Mario_and_Enemies.pack");
@@ -80,6 +84,11 @@ public class PlayScreen implements Screen {
 
         //contact listener is what get called when 2 fixtures in Box2d colide with each other
         world.setContactListener(new WorldContactListener());
+
+        //get the music
+        this.music = MarioBros.manager.get("audio/music/mario_music.ogg", Music.class);
+        music.setLooping(true); //looping the music
+        music.play();
     }
 
     //Custom method to return Atlas
