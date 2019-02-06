@@ -20,14 +20,14 @@ public class Hud implements Disposable {
 
     private Integer worldTimer;
     private float timeCount;
-    private Integer score;
+    private static Integer score;
 
-    Label countdownLabel;
-    Label scoreLabel;
-    Label timeLabel;
-    Label levelLabel;
-    Label worldLabel;
-    Label marioLabel;
+    private Label countdownLabel;
+    private static Label scoreLabel;
+    private Label timeLabel;
+    private Label levelLabel;
+    private Label worldLabel;
+    private Label marioLabel;
 
     public Hud(SpriteBatch sb){
 
@@ -59,6 +59,24 @@ public class Hud implements Disposable {
 
         //add the table to the stage
         stage.addActor(table);
+    }
+
+    //implementing the timer
+    public void update(float deltaTime){
+        timeCount += deltaTime;
+        //countdown the timer every second
+        if(timeCount >= 1){
+            worldTimer--;
+            countdownLabel.setText(String.format("%03d", worldTimer));
+            timeCount = 0;
+        }
+    }
+
+    //method for update the score every time Mario hits bricks and coins
+    //Its static but it should use a better design pattern
+    public static void addScore(int value){
+        score += value;
+        scoreLabel.setText(String.format("%06d", score));
     }
 
     @Override

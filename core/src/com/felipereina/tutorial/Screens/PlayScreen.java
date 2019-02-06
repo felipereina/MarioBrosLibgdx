@@ -98,6 +98,9 @@ public class PlayScreen implements Screen {
         //update Mario sprite Position according to the body
         player.update(deltaTime);
 
+        //update the timer from the Hud
+        hud.update(deltaTime);
+
         //Always center the Camera in Mario position on the screen
         gameCam.position.x = player.b2body.getPosition().x;
 
