@@ -27,9 +27,9 @@ public class Mario extends Sprite {
 
     private boolean runningRight;
 
-    public Mario(World world, PlayScreen screen){
+    public Mario(PlayScreen screen){
         super(screen.getAtlas().findRegion("little_mario"));
-        this.world = world;
+        this.world = screen.getWorld();
 
         currentState = State.STANDING;
         previousState = State.STANDING;
@@ -74,7 +74,11 @@ public class Mario extends Sprite {
 
         //give a identity BIT to the fixture and define with wich fitures it can collide with
         fixtureDef.filter.categoryBits = MarioBros.MARIO_BIT;
-        fixtureDef.filter.maskBits = MarioBros.DEFAULT_BIT | MarioBros.COIN_BIT | MarioBros.BRICK_BIT;
+        fixtureDef.filter.maskBits = MarioBros.GROUND_BIT |
+                MarioBros.COIN_BIT |
+                MarioBros.BRICK_BIT |
+                MarioBros.ENEMY_BIT |
+                MarioBros.OBJECT_BIT;
 
         b2body.createFixture(fixtureDef);
 

@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.felipereina.tutorial.MarioBros;
 import com.felipereina.tutorial.Scenes.Hud;
+import com.felipereina.tutorial.Sprites.Goomba;
 import com.felipereina.tutorial.Sprites.Mario;
 import com.felipereina.tutorial.Tools.B2WorldCreator;
 import com.felipereina.tutorial.Tools.WorldContactListener;
@@ -48,8 +49,9 @@ public class PlayScreen implements Screen {
     private World world;
     private Box2DDebugRenderer b2dr;
 
-    //Mario Sprite property
+    //Sprites properties
     private Mario player;
+    private Goomba goomba;
 
     //Game Music
     private Music music;
@@ -77,10 +79,10 @@ public class PlayScreen implements Screen {
         this.b2dr = new Box2DDebugRenderer(); // allows debug lines in our box2d world
 
         //Instantiate B2WorldCreator class
-        new B2WorldCreator(world, map);
+        new B2WorldCreator(this);
 
         //Instantiate Mario
-        this.player = new Mario(world, this);
+        this.player = new Mario(this);
 
         //contact listener is what get called when 2 fixtures in Box2d colide with each other
         world.setContactListener(new WorldContactListener());
@@ -89,6 +91,9 @@ public class PlayScreen implements Screen {
         this.music = MarioBros.manager.get("audio/music/mario_music.ogg", Music.class);
         music.setLooping(true); //looping the music
         music.play();
+
+        //instantiating a Goomba
+        this.goomba = new Goomba(this, .32f, .32f);
     }
 
     //Custom method to return Atlas
@@ -106,6 +111,7 @@ public class PlayScreen implements Screen {
 
         //update Mario sprite Position according to the body
         player.update(deltaTime);
+        goomba.update(deltaTime);
 
         //update the timer from the Hud
         hud.update(deltaTime);
@@ -156,6 +162,7 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
         player.draw(game.batch);
+        goomba.draw(game.batch);
         game.batch.end();
 
         //renderer out Box2dDebugLines (green box2d lines)
@@ -170,6 +177,15 @@ public class PlayScreen implements Screen {
 
         gamePort.update(width, height); // when screen resizes, uses the new width and height
 
+    }
+
+
+    public TiledMap getMap(){
+        return map;
+    }
+
+    public World getWorld(){
+        return world;
     }
 
     @Override

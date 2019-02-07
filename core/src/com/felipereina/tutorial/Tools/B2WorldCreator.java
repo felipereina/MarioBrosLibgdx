@@ -6,15 +6,17 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.*;
 import com.felipereina.tutorial.MarioBros;
+import com.felipereina.tutorial.Screens.PlayScreen;
 import com.felipereina.tutorial.Sprites.Brick;
 import com.felipereina.tutorial.Sprites.Coin;
 
 public class B2WorldCreator {
 
-    public B2WorldCreator(World world, TiledMap map){
+    public B2WorldCreator(PlayScreen screen){
+        World world = screen.getWorld();
+        TiledMap map = screen.getMap();
 
         //will create a body and fixture in every corresponding body in our tiledmap layers.
-
         BodyDef bodyDef = new BodyDef(); //body definition
         PolygonShape polygonShape = new PolygonShape();
         FixtureDef fixtureDef = new FixtureDef(); //fixture definition
@@ -48,6 +50,7 @@ public class B2WorldCreator {
 
             polygonShape.setAsBox((rect.getWidth() / 2) / MarioBros.PPM, (rect.getHeight() /2) / MarioBros.PPM);
             fixtureDef.shape = polygonShape; //defining the shape of the fixture.
+            fixtureDef.filter.categoryBits = MarioBros.OBJECT_BIT; //defining a identity to the fixture;
             body.createFixture(fixtureDef); //add the fixture to the body.
         }
 
@@ -57,7 +60,7 @@ public class B2WorldCreator {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
             //instantiate Brick object
-            new Brick(world, map, rect);
+            new Brick(screen, rect);
         }
 
         //---the Coin Body / fixtures: ---
@@ -66,7 +69,7 @@ public class B2WorldCreator {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
             //instantiate Coin object
-            new Coin(world, map, rect);
+            new Coin(screen, rect);
         }
 
 
