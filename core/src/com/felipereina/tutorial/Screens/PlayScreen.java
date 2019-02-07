@@ -93,7 +93,7 @@ public class PlayScreen implements Screen {
         music.play();
 
         //instantiating a Goomba
-        this.goomba = new Goomba(this, .32f, .32f);
+        this.goomba = new Goomba(this, 5.64f, .16f);
     }
 
     //Custom method to return Atlas

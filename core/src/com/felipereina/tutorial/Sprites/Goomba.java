@@ -1,7 +1,9 @@
 package com.felipereina.tutorial.Sprites;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.tiled.renderers.BatchTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
@@ -58,7 +60,7 @@ public class Goomba extends Enemy {
                 MarioBros.OBJECT_BIT |
                 MarioBros.MARIO_BIT;
 
-        b2body.createFixture(fixtureDef);
+        b2body.createFixture(fixtureDef).setUserData(this);
 
         //Creating the Head of Goomba
         PolygonShape head = new PolygonShape();
@@ -88,10 +90,21 @@ public class Goomba extends Enemy {
             destroyed = true;
             //change the sprite texture region to smashed Goomba
             setRegion(new TextureRegion(screen.getAtlas().findRegion("goomba"), 32, 0, 16, 16));
+            stateTime = 0;
+
         } else if(! destroyed) {
+            b2body.setLinearVelocity(velocity); //receceiving new Vector2 from Enemy superclass
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             setRegion(walkAnimation.getKeyFrame(stateTime, true));//true to say its a looping animation
-            }
         }
+
+    }
+    //Making Goomba desapear after 1 second by overriding the draw method.
+    public void draw(Batch batch){
+        //Goomba sprite is only draw if goomba is not destroyed or the time is less than 1 second
+        if(!destroyed || stateTime < 1){
+            super.draw(batch);
+        }
+    }
 
 }
