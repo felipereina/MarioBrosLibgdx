@@ -2,9 +2,11 @@ package com.felipereina.tutorial.Sprites;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 import com.felipereina.tutorial.MarioBros;
 import com.felipereina.tutorial.Screens.PlayScreen;
@@ -14,6 +16,8 @@ public class Goomba extends Enemy {
     private float stateTime;
     private Animation<TextureRegion> walkAnimation;
     private Array<TextureRegion> frames;
+    private boolean setToDestroy;
+    private boolean destroyed;
 
     public Goomba(PlayScreen screen, float x, float y){
         super(screen, x, y);
@@ -26,13 +30,16 @@ public class Goomba extends Enemy {
             stateTime = 0;
         }
         setBounds(getX(), getY(), 16 /MarioBros.PPM, 16 /MarioBros.PPM);
+
+        this.setToDestroy = false;
+        this.destroyed = false;
     }
 
     @Override
     protected void defineEnemy() {
         // -- Goomba Body --
         BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(64 / MarioBros.PPM,64 / MarioBros.PPM); //defines the position of the body in the screen
+        bodyDef.position.set(getX() + 1, getY()); //defines the position of the body in the screen
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bodyDef);
 
@@ -52,13 +59,39 @@ public class Goomba extends Enemy {
                 MarioBros.MARIO_BIT;
 
         b2body.createFixture(fixtureDef);
+
+        //Creating the Head of Goomba
+        PolygonShape head = new PolygonShape();
+        Vector2[] vertice = new Vector2[4];
+        vertice[0] = new Vector2(-5,8).scl(1/MarioBros.PPM);
+        vertice[1] = new Vector2(5,8).scl(1/MarioBros.PPM);
+        vertice[2] = new Vector2(-3,3).scl(1/MarioBros.PPM);
+        vertice[3] = new Vector2(3,3).scl(1/MarioBros.PPM);
+        head.set(vertice);
+
+        fixtureDef.shape = head;
+        fixtureDef.restitution = 0.5f; //how much bouncing is the fixture (for Mario to bouncing up after stomping a goomba)
+        fixtureDef.filter.categoryBits = MarioBros.ENEMY_HEAD_BIT;
+        b2body.createFixture(fixtureDef).setUserData(this);
+    }
+
+    @Override
+    public void hitOnHead() {
+        setToDestroy = true;
     }
 
     public void update(float deltaTime){
         stateTime += deltaTime;
 
-        setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
-        setRegion(walkAnimation.getKeyFrame(stateTime, true));//true to say its a looping animation
-    }
+        if(setToDestroy && !destroyed){
+            world.destroyBody(b2body); // remove the body of the Goomba
+            destroyed = true;
+            //change the sprite texture region to smashed Goomba
+            setRegion(new TextureRegion(screen.getAtlas().findRegion("goomba"), 32, 0, 16, 16));
+        } else if(! destroyed) {
+            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+            setRegion(walkAnimation.getKeyFrame(stateTime, true));//true to say its a looping animation
+            }
+        }
 
 }

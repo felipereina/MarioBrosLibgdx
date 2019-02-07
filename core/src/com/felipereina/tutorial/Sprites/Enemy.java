@@ -11,14 +11,17 @@ public abstract class Enemy extends Sprite {
     protected World world;
     protected TiledMap map;
     public Body b2body;
+    protected PlayScreen screen;
 
     public Enemy(PlayScreen screen, float x, float y){
         this.world = screen.getWorld();
         this.map = screen.getMap();
+        this.screen = screen;
         setPosition(x, y);
         defineEnemy();
     }
 
     protected abstract void defineEnemy();
+    public abstract void hitOnHead();
 
 }
