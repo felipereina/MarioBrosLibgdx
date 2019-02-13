@@ -3,9 +3,10 @@ package com.felipereina.tutorial.Tools;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.*;
 import com.felipereina.tutorial.MarioBros;
-import com.felipereina.tutorial.Sprites.Enemy;
+import com.felipereina.tutorial.Sprites.Enemies.Enemy;
 import com.felipereina.tutorial.Sprites.InteractiveTileObject;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+import com.felipereina.tutorial.Sprites.Items.Item;
+import com.felipereina.tutorial.Sprites.Mario;
 
 public class WorldContactListener implements ContactListener {
 
@@ -37,6 +38,7 @@ public class WorldContactListener implements ContactListener {
                     ((Enemy) fixB.getUserData()).hitOnHead();
                 }
                 break;
+                //Reverse Enemy velocity when colide with object
             case MarioBros.ENEMY_BIT | MarioBros.OBJECT_BIT:
                 if(fixA.getFilterData().categoryBits == MarioBros.ENEMY_BIT){
                     ((Enemy)fixA.getUserData()).reverseVelocity(true, false);
@@ -44,9 +46,31 @@ public class WorldContactListener implements ContactListener {
                     ((Enemy) fixB.getUserData()).reverseVelocity(true, false);
                 }
                 break;
+                //Reverse Item velocity when colide with object
+            case MarioBros.ITEM_BIT | MarioBros.OBJECT_BIT:
+                if(fixA.getFilterData().categoryBits == MarioBros.ITEM_BIT){
+                    ((Item)fixA.getUserData()).reverseVelocity(true, false);
+                } else{
+                    ((Item) fixB.getUserData()).reverseVelocity(true, false);
+                }
+                break;
+                //Mario dies when colide with Enemy
             case MarioBros.MARIO_BIT | MarioBros.ENEMY_BIT:
                 Gdx.app.log("MARIO", "DIED");
-
+                break;
+                //case 2 enemies colide between themselfs revert velocity
+            case MarioBros.ENEMY_BIT | MarioBros.ENEMY_BIT:
+                ((Enemy) fixA.getUserData()).reverseVelocity(true, false);
+                ((Enemy) fixB.getUserData()).reverseVelocity(true, false);
+                break;
+            //case Mario colide with Item he uses it
+            case MarioBros.ITEM_BIT | MarioBros.MARIO_BIT:
+                if(fixA.getFilterData().categoryBits == MarioBros.ITEM_BIT){
+                    ((Item)fixA.getUserData()).use((Mario) fixB.getUserData());
+                } else{
+                    ((Item)fixB.getUserData()).use((Mario) fixA.getUserData());
+                }
+                break;
         }
 
     }

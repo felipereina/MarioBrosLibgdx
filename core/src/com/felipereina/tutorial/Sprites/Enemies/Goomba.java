@@ -1,9 +1,8 @@
-package com.felipereina.tutorial.Sprites;
+package com.felipereina.tutorial.Sprites.Enemies;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.tiled.renderers.BatchTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
@@ -41,7 +40,7 @@ public class Goomba extends Enemy {
     protected void defineEnemy() {
         // -- Goomba Body --
         BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(getX() + 1, getY()); //defines the position of the body in the screen
+        bodyDef.position.set(getX(), getY()); //defines the position of the body in the screen
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bodyDef);
 
@@ -86,13 +85,12 @@ public class Goomba extends Enemy {
         stateTime += deltaTime;
 
         if(setToDestroy && !destroyed){
-            world.destroyBody(b2body); // remove the body of the Goomba
-            destroyed = true;
             //change the sprite texture region to smashed Goomba
             setRegion(new TextureRegion(screen.getAtlas().findRegion("goomba"), 32, 0, 16, 16));
+            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             stateTime = 0;
 
-        } else if(! destroyed) {
+        } else if(!destroyed) {
             b2body.setLinearVelocity(velocity); //receceiving new Vector2 from Enemy superclass
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             setRegion(walkAnimation.getKeyFrame(stateTime, true));//true to say its a looping animation
@@ -107,4 +105,27 @@ public class Goomba extends Enemy {
         }
     }
 
+    public boolean isSetToDestroy() {
+        return setToDestroy;
+    }
+
+    public void setSetToDestroy(boolean setToDestroy) {
+        this.setToDestroy = setToDestroy;
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
+    }
+
+    public void setDestroyed(boolean destroyed) {
+        this.destroyed = destroyed;
+    }
+
+    public float getStateTime() {
+        return stateTime;
+    }
+
+    public void setStateTime(float stateTime) {
+        this.stateTime = stateTime;
+    }
 }

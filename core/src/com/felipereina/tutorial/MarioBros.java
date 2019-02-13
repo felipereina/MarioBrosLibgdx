@@ -16,6 +16,8 @@ public class MarioBros extends Game {
 	public static final int V_HEIGHT = 208;
 	public static final float PPM = 100; //pixels per meter
 
+	public static final short ENEMY_WAKE_DISTANCE = 256;  //distance (in pixels) to wake up enemies
+
 	public static final short GROUND_BIT = 1;
 	public static final short MARIO_BIT = 2;
 	public static final short BRICK_BIT = 4;
@@ -24,6 +26,8 @@ public class MarioBros extends Game {
 	public static final short OBJECT_BIT = 32;
 	public static final short ENEMY_BIT = 64;
 	public static final short ENEMY_HEAD_BIT = 128;
+	public static final short ITEM_BIT = 256;
+
 
 
 
@@ -43,6 +47,7 @@ public class MarioBros extends Game {
 		manager.load("audio/sounds/coin.wav", Sound.class);
 		manager.load("audio/sounds/bump.wav", Sound.class);
 		manager.load("audio/sounds/breakblock.wav", Sound.class);
+		manager.load("audio/sounds/powerup_spawn.wav", Sound.class);
 		manager.finishLoading(); //assynchronous loading
 
 		setScreen(new PlayScreen(this));

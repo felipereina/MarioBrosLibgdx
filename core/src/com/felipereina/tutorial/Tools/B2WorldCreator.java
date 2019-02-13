@@ -5,12 +5,18 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
 import com.felipereina.tutorial.MarioBros;
 import com.felipereina.tutorial.Screens.PlayScreen;
 import com.felipereina.tutorial.Sprites.Brick;
 import com.felipereina.tutorial.Sprites.Coin;
+import com.felipereina.tutorial.Sprites.Enemies.Goomba;
+
+import java.util.Iterator;
 
 public class B2WorldCreator {
+
+    private Array<Goomba> goombas;
 
     public B2WorldCreator(PlayScreen screen){
         World world = screen.getWorld();
@@ -57,23 +63,36 @@ public class B2WorldCreator {
         //---the Brick Body / fixtures: ---
         for(MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)){
             //first get the rectangle object itself (type cast)
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
             //instantiate Brick object
-            new Brick(screen, rect);
+            new Brick(screen, object);
         }
 
         //---the Coin Body / fixtures: ---
         for(MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)){
             //first get the rectangle object itself (type cast)
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
             //instantiate Coin object
-            new Coin(screen, rect);
+            new Coin(screen, object);
         }
 
+        //Create All Goombas for this phase screen
+        goombas = new Array<Goomba>();
+        for(MapObject object : map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)){
+            //first get the rectangle object itself (type cast)
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
+            //instantiate Goombas
+            goombas.add(new Goomba(screen, rect.getX() / MarioBros.PPM, rect.getY() / MarioBros.PPM));
+
+        }
 
     }
 
+    public Array<Goomba> getGoombas() {
+        return goombas;
+    }
+
+    public Iterator<Goomba> getGoombaIterator(){
+        return goombas.iterator();
+    }
 }

@@ -1,4 +1,4 @@
-package com.felipereina.tutorial.Sprites;
+package com.felipereina.tutorial.Sprites.Enemies;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -21,11 +21,15 @@ public abstract class Enemy extends Sprite {
         this.screen = screen;
         setPosition(x, y);
         defineEnemy();
-        this.velocity = new Vector2(1, 0);
+        this.velocity = new Vector2(-1, -2);
+        //Make enemies stay freezed until Mario gets closer
+        // puts the body to sleep (its not calculated in the simulation).
+        b2body.setActive(false);
     }
 
     protected abstract void defineEnemy();
     public abstract void hitOnHead();
+    public abstract void update(float deltaTime);
 
 
     public void reverseVelocity(boolean x, boolean y){

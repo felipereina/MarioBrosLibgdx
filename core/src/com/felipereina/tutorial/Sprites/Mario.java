@@ -79,9 +79,10 @@ public class Mario extends Sprite {
                 MarioBros.BRICK_BIT |
                 MarioBros.ENEMY_BIT |
                 MarioBros.OBJECT_BIT |
-                MarioBros.ENEMY_HEAD_BIT;
+                MarioBros.ENEMY_HEAD_BIT |
+                MarioBros.ITEM_BIT;
 
-        b2body.createFixture(fixtureDef);
+        b2body.createFixture(fixtureDef).setUserData(this);
 
         //--Fixture to the feet of Mario (to walk smoothly through the boxes) --
         EdgeShape feet = new EdgeShape();

@@ -1,32 +1,34 @@
 package com.felipereina.tutorial.Screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.felipereina.tutorial.MarioBros;
 import com.felipereina.tutorial.Scenes.Hud;
-import com.felipereina.tutorial.Sprites.Goomba;
+import com.felipereina.tutorial.Sprites.Enemies.Enemy;
+import com.felipereina.tutorial.Sprites.Enemies.Goomba;
+import com.felipereina.tutorial.Sprites.Items.Item;
+import com.felipereina.tutorial.Sprites.Items.ItemDefinition;
+import com.felipereina.tutorial.Sprites.Items.Mushroom;
 import com.felipereina.tutorial.Sprites.Mario;
 import com.felipereina.tutorial.Tools.B2WorldCreator;
 import com.felipereina.tutorial.Tools.WorldContactListener;
+
+import java.util.Iterator;
+import java.util.PriorityQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class PlayScreen implements Screen {
 
@@ -48,13 +50,19 @@ public class PlayScreen implements Screen {
     //Box2d Properties
     private World world;
     private Box2DDebugRenderer b2dr;
+    private B2WorldCreator creator;
+
+    private Iterator<Goomba> goombaIterator;
 
     //Sprites properties
     private Mario player;
-    private Goomba goomba;
 
     //Game Music
     private Music music;
+
+    //Items
+    private Array<Item> items;
+    private LinkedBlockingDeque<ItemDefinition> itemsToSpawn;
 
     public PlayScreen(MarioBros game){
 
@@ -79,7 +87,7 @@ public class PlayScreen implements Screen {
         this.b2dr = new Box2DDebugRenderer(); // allows debug lines in our box2d world
 
         //Instantiate B2WorldCreator class
-        new B2WorldCreator(this);
+        creator = new  B2WorldCreator(this);
 
         //Instantiate Mario
         this.player = new Mario(this);
@@ -92,8 +100,25 @@ public class PlayScreen implements Screen {
         music.setLooping(true); //looping the music
         music.play();
 
-        //instantiating a Goomba
-        this.goomba = new Goomba(this, 5.64f, .16f);
+        //instantiate items
+        this.items = new Array<Item>();
+        this.itemsToSpawn = new LinkedBlockingDeque<ItemDefinition>();
+
+    }
+
+    //method to spawn items
+    public void spawnItem(ItemDefinition idef){
+        itemsToSpawn.add(idef);
+    }
+
+    //if there is a item in the coin and it is a mushroom, then instantiate a mushroom and set position as the coin
+    public void handleSpawningItems(){
+        if(!itemsToSpawn.isEmpty()){
+            ItemDefinition idef = itemsToSpawn.poll();
+            if(idef.type == Mushroom.class){
+                items.add(new Mushroom(this, idef.position.x, idef.position.y));
+            }
+        }
     }
 
     //Custom method to return Atlas
@@ -107,11 +132,39 @@ public class PlayScreen implements Screen {
         //check if there is any inputs happening
         handleInput(deltaTime);
 
+        //update the items situation
+        handleSpawningItems();
+
         world.step(1/60f, 6, 2);
 
         //update Mario sprite Position according to the body
         player.update(deltaTime);
-        goomba.update(deltaTime);
+
+        //Goombas sprite Position update
+        //Created a Iterator for Goomba Array in order to properly destroy Goombas from the Array
+        goombaIterator = creator.getGoombaIterator();
+        while(goombaIterator.hasNext()){
+
+            Goomba nextGoomba = goombaIterator.next();
+            nextGoomba.update(deltaTime);
+            if(nextGoomba.getX() < player.getX()+(MarioBros.ENEMY_WAKE_DISTANCE/MarioBros.PPM)) {
+                nextGoomba.b2body.setActive((true));
+            }
+            if (nextGoomba.isSetToDestroy() && !nextGoomba.isDestroyed()){
+                world.destroyBody(nextGoomba.b2body);
+                nextGoomba.setDestroyed(true);
+            }
+
+            if (nextGoomba.getStateTime() >= 1 && nextGoomba.isDestroyed()){
+                Gdx.app.log("removing goomba from array", "");
+                goombaIterator.remove();
+            }
+        }
+
+        //update each item every frame
+        for(Item item : items){
+            item.update(deltaTime);
+        }
 
         //update the timer from the Hud
         hud.update(deltaTime);
@@ -162,7 +215,17 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
         player.draw(game.batch);
-        goomba.draw(game.batch);
+
+        //Render Goombas
+        for(Enemy enemy : creator.getGoombas()){
+            enemy.draw(game.batch);
+        }
+
+        //Render the Items
+        for(Item item : items){
+            item.draw(game.batch);
+        }
+
         game.batch.end();
 
         //renderer out Box2dDebugLines (green box2d lines)
