@@ -42,7 +42,7 @@ public abstract class InteractiveTileObject {
         fixture = body.createFixture(fixtureDef); //add the fixture to the body.
     }
 
-    public abstract void onHeadHit();
+    public abstract void onHeadHit(Mario mario);
 
     public void setCategoryFilter(short filterBit){
         Filter filter = new Filter();

@@ -32,7 +32,7 @@ public class Coin extends InteractiveTileObject {
         setCategoryFilter(MarioBros.COIN_BIT);
     }
     @Override
-    public void onHeadHit() {
+    public void onHeadHit(Mario mario) {
 
         Gdx.app.log("Coin", "Collision");
 

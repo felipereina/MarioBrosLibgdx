@@ -18,18 +18,16 @@ public class WorldContactListener implements ContactListener {
 
         int colisionDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
 
-        //check if one of the fixtures beginning contact is the head of Mario
-        if(fixA.getUserData() == "head" || fixB.getUserData() == "head"){
-            Fixture head = fixA.getUserData() == "head" ? fixA : fixB;
-            Fixture object = head == fixA ? fixB : fixA;
-
-            //check if the other object is an interactive Tile object
-            if(object.getUserData() != null && InteractiveTileObject.class.isAssignableFrom(object.getUserData().getClass())){
-                ((InteractiveTileObject) object.getUserData()).onHeadHit();
-            }
-        }
-
         switch (colisionDef){
+
+            case MarioBros.MARIO_HEAD_BIT | MarioBros.BRICK_BIT:
+            case MarioBros.MARIO_HEAD_BIT | MarioBros.COIN_BIT:
+                if(fixA.getFilterData().categoryBits == MarioBros.MARIO_HEAD_BIT) {
+                    ((InteractiveTileObject) fixB.getUserData()).onHeadHit((Mario) fixA.getUserData());
+                } else{
+                    ((InteractiveTileObject) fixA.getUserData()).onHeadHit((Mario) fixB.getUserData());
+                }
+                    break;
             //check if Mario colided with Enemy head
             case MarioBros.ENEMY_HEAD_BIT | MarioBros.MARIO_BIT:
                 if(fixA.getFilterData().categoryBits == MarioBros.ENEMY_HEAD_BIT){
@@ -56,7 +54,11 @@ public class WorldContactListener implements ContactListener {
                 break;
                 //Mario dies when colide with Enemy
             case MarioBros.MARIO_BIT | MarioBros.ENEMY_BIT:
-                Gdx.app.log("MARIO", "DIED");
+                if(fixA.getFilterData().categoryBits == MarioBros.MARIO_BIT) {
+                    ((Mario) fixA.getUserData()).hit();
+                } else{
+                    ((Mario) fixB.getUserData()).hit();
+                }
                 break;
                 //case 2 enemies colide between themselfs revert velocity
             case MarioBros.ENEMY_BIT | MarioBros.ENEMY_BIT:
