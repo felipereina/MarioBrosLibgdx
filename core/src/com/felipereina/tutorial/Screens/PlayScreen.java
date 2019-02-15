@@ -166,12 +166,15 @@ public class PlayScreen implements Screen {
             item.update(deltaTime);
         }
 
+
+
         //update the timer from the Hud
         hud.update(deltaTime);
 
         //Always center the Camera in Mario position on the screen
-        gameCam.position.x = player.b2body.getPosition().x;
-
+        if(player.currentState != Mario.State.DEAD) {
+            gameCam.position.x = player.b2body.getPosition().x;
+        }
         gameCam.update();
 
         //let the map renderer now what it needs to render - Only render what our gameCam can see.
@@ -181,23 +184,24 @@ public class PlayScreen implements Screen {
 
     //if there is any input, gameCam position moves x to show the world
     public void handleInput(float deltaTime){
+        //only allows inputs if Mario is alive
+        if(player.currentState != Mario.State.DEAD) {
+            // -- Input Handler to capture up button (Jump) --
+            if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                //linear Impulse (dont have acceleration) : param 1st - direction and force; 2nd where in the body the force will be applied; 3trd is to awake the body.
+                player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
+            }
 
-        // -- Input Handler to capture up button (Jump) --
-      if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
-          //linear Impulse (dont have acceleration) : param 1st - direction and force; 2nd where in the body the force will be applied; 3trd is to awake the body.
-          player.b2body.applyLinearImpulse(new Vector2(0,4f), player.b2body.getWorldCenter(),true);
-      }
-
-      // -- Input Handler to capture Right and Left buttons (Move) --
-        // isKeyPressed != isJustKeyPressed - the first sees if the button is being hold down
-        // second condition checks if Mario is not moving faster than a specifc speed.
-      if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2){
-          player.b2body.applyLinearImpulse(new Vector2(0.1f,0),player.b2body.getWorldCenter(),true);
-      }
-      if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2){
-          player.b2body.applyLinearImpulse(new Vector2(-0.1f,0),player.b2body.getWorldCenter(),true);
-      }
-
+            // -- Input Handler to capture Right and Left buttons (Move) --
+            // isKeyPressed != isJustKeyPressed - the first sees if the button is being hold down
+            // second condition checks if Mario is not moving faster than a specifc speed.
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2) {
+                player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2) {
+                player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
+            }
+        }
     }
 
     @Override
@@ -233,6 +237,18 @@ public class PlayScreen implements Screen {
 
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
+
+        if(gameOver()){
+            game.setScreen(new GameOverScreen(game));
+            dispose();
+        }
+    }
+
+    public boolean gameOver(){
+        if(player.currentState == Mario.State.DEAD && player.getStateTimer() > 3){
+            return true;
+        }
+        return false;
     }
 
     @Override
