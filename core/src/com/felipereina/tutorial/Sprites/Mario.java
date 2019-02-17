@@ -10,6 +10,8 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.felipereina.tutorial.MarioBros;
 import com.felipereina.tutorial.Screens.PlayScreen;
+import com.felipereina.tutorial.Sprites.Enemies.Enemy;
+import com.felipereina.tutorial.Sprites.Enemies.Turtle;
 
 public class Mario extends Sprite {
 
@@ -301,25 +303,30 @@ public class Mario extends Sprite {
         return marioIsBig;
     }
 
-    public void hit(){
-        if(marioIsBig){
-            marioIsBig = false;
-            timeToRedefineMario = true;
-            setBounds(getX(), getY(), getWidth(), getHeight() / 2); // bounds of MArio shrinks again
-            MarioBros.manager.get("audio/sounds/powerdown.wav", Sound.class).play();
-        } else{
-            MarioBros.manager.get("audio/music/mario_music.ogg", Music.class).stop();
-            MarioBros.manager.get("audio/sounds/mariodie.wav", Sound.class).play();
-            marioIsDead = true;
-            Filter filter = new Filter();
-            filter.maskBits = MarioBros.NOTHING_BIT;
-            //setting the nothing filter to all Mario's fixture in order to disable collisions ability
-            for(Fixture fixture : b2body.getFixtureList()){
-                fixture.setFilterData(filter);
-            }
-            b2body.applyLinearImpulse(new Vector2(0, 4f), b2body.getWorldCenter(), true);
-        }
+    public void hit(Enemy enemy){
 
+        if(enemy instanceof Turtle && ((Turtle) enemy).getCurrentState() == Turtle.State.STANDING_SHELL){
+            ((Turtle) enemy).kick(enemy.b2body.getPosition().x > b2body.getPosition().x ? Turtle.KICK_RIGHT_SPEED : Turtle.KICK_LEFT_SPEED);
+        } else {
+
+            if (marioIsBig) {
+                marioIsBig = false;
+                timeToRedefineMario = true;
+                setBounds(getX(), getY(), getWidth(), getHeight() / 2); // bounds of MArio shrinks again
+                MarioBros.manager.get("audio/sounds/powerdown.wav", Sound.class).play();
+            } else {
+                MarioBros.manager.get("audio/music/mario_music.ogg", Music.class).stop();
+                MarioBros.manager.get("audio/sounds/mariodie.wav", Sound.class).play();
+                marioIsDead = true;
+                Filter filter = new Filter();
+                filter.maskBits = MarioBros.NOTHING_BIT;
+                //setting the nothing filter to all Mario's fixture in order to disable collisions ability
+                for (Fixture fixture : b2body.getFixtureList()) {
+                    fixture.setFilterData(filter);
+                }
+                b2body.applyLinearImpulse(new Vector2(0, 4f), b2body.getWorldCenter(), true);
+            }
+        }
 
     }
 
@@ -353,11 +360,13 @@ public class Mario extends Sprite {
 
         b2body.createFixture(fixtureDef).setUserData(this);
 
+        /*
         //--Fixture to the feet of Mario (to walk smoothly through the boxes) --
         EdgeShape feet = new EdgeShape();
         feet.set(new Vector2(-2 / MarioBros.PPM, -6/MarioBros.PPM), new Vector2(2/MarioBros.PPM, -6/MarioBros.PPM));
+        fixtureDef.filter.categoryBits = MarioBros.MARIO_FOOT_BIT;
         fixtureDef.shape = feet;
-        b2body.createFixture(fixtureDef);
+        b2body.createFixture(fixtureDef).setUserData(this); */
 
         //-- Fixture for Mario head --
         EdgeShape head = new EdgeShape(); //Edge Shape is a line between 2 diferents points.

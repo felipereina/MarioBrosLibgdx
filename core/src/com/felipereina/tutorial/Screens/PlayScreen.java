@@ -142,7 +142,7 @@ public class PlayScreen implements Screen {
 
         //Goombas sprite Position update
         //Created a Iterator for Goomba Array in order to properly destroy Goombas from the Array
-        goombaIterator = creator.getGoombaIterator();
+       /* goombaIterator = creator.getGoombaIterator();
         while(goombaIterator.hasNext()){
 
             Goomba nextGoomba = goombaIterator.next();
@@ -158,6 +158,13 @@ public class PlayScreen implements Screen {
             if (nextGoomba.getStateTime() >= 1 && nextGoomba.isDestroyed()){
                 Gdx.app.log("removing goomba from array", "");
                 goombaIterator.remove();
+            }
+        } */
+
+        for(Enemy enemy : creator.getEnemies()) {
+            enemy.update(deltaTime);
+            if(enemy.getX() < player.getX() + MarioBros.ENEMY_WAKE_DISTANCE / MarioBros.PPM) {
+                enemy.b2body.setActive(true);
             }
         }
 
@@ -220,8 +227,8 @@ public class PlayScreen implements Screen {
         game.batch.begin();
         player.draw(game.batch);
 
-        //Render Goombas
-        for(Enemy enemy : creator.getGoombas()){
+        //Render Enemies
+        for(Enemy enemy : creator.getEnemies()){
             enemy.draw(game.batch);
         }
 
